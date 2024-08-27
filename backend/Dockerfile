@@ -1,17 +1,36 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Pull base image
+FROM python:3.11.4-slim-bullseye
 
-# Set the working directory in the container
-WORKDIR /app
+# Set environment variables
+ENV PIP_NO_CACHE_DIR off
+ENV PIP_DISABLE_PIP_VERSION_CHECK 1
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV COLUMNS 80
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# install Debian and other dependencies that are required to run python apps(eg. git, python-magic).
+RUN apt-get clean && apt-get update  --fix-missing \
+  && apt-get install -y \
+    chrpath \
+    ffmpeg \
+    gcc \
+    gettext \
+    git \
+    libfontconfig1 \
+    libfontconfig1-dev \
+    libfreetype6 \
+    libfreetype6-dev \
+    libmagic-dev \
+    libpq-dev \
+    libssl-dev \
+    libxft-dev \
+    nano \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Set working directory for Docker image
+WORKDIR /code/
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
-
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Install dependencies
+COPY . .
+RUN pip install -r requirements.txt

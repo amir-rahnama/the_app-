@@ -5,9 +5,11 @@ services:
     build: ./backend/
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/logs/:/app/logs/
     networks:
       - app-network
-
+      
   frontend:
     build: ./frontend/
     ports:
